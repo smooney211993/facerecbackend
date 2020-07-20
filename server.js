@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const brcypt = require('bcrypt-nodejs');
+const bcrypt = require('bcryptjs')
+
 
 const app = express();
 
@@ -36,8 +37,13 @@ app.get('/', (req , res, next)=>{
 })
 
 app.post('/signin', (req, res, next)=>{
-    if(req.body.email === dataBase.users[0].email && req.body.password === dataBase.users[0].password) {
-        res.join(success)
+    bcrypt.compare(req.body.password, '$2a$10$dHoVH.wq9LVgZLbcsE.x4.xi2jaeuuhskNkL2QX9c1zzfjUUWZNme', function(err, res) {
+       console.log(res)
+    });
+     
+    if(req.body.email === dataBase.users[2].email && 
+        req.body.password === dataBase.users[2].password) {
+        res.json('success')
     } else {
         res.status(400).json('error logging in')
     }
@@ -65,10 +71,11 @@ app.post('/register',(req, res, next)=>{
     if(dataBase.users.find(user => user.email === email)){
         res.status(404).send('user already exists');
     }
-    brcypt.hash(password, null, null, function(err, hash) {
-        console.log(hash)
-
-    })
+    bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(password, salt, function(err, hash) {
+        console.log(hash);
+        });
+    });
     
     let newUser = {
         id : ++id,
