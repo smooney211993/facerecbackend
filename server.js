@@ -1,6 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const cors = require('cors');
+const knex = require('knex')
+const db = knex({
+    client: 'pg',
+    connection: {
+      host : '127.0.0.1',
+      user : 'postgres',
+      password : 'JonesbO21',
+      database : 'smartbrain'
+    }
+  });
+
+  db.select('*').from('users').then(data=>console.log(data));
+
+
 
 
 const app = express();
@@ -31,6 +46,10 @@ const dataBase = {
 }
 
 app.use(bodyParser.json());
+app.use(cors())
+
+
+
 
 app.get('/', (req , res, next)=>{
     res.send('this is working bitch tits');
@@ -41,9 +60,20 @@ app.post('/signin', (req, res, next)=>{
        console.log(res)
     });
      
-    if(req.body.email === dataBase.users[2].email && 
+     /*if(req.body.email === dataBase.users[2].email && 
         req.body.password === dataBase.users[2].password) {
         res.json('success')
+    } else {
+        res.status(400).json('error logging in')
+    } */
+
+    const found = dataBase.users.find(user=>{
+       return  user.password === req.body.password && user.email === req.body.email
+    })
+    console.log('found' + found)
+    if(found) {
+        res.json(found)
+        console.log(found)
     } else {
         res.status(400).json('error logging in')
     }
@@ -80,7 +110,6 @@ app.post('/register',(req, res, next)=>{
     let newUser = {
         id : ++id,
         name: name,
-        password : password,
         email: email,
         entries : 0,
         joined: new Date()
@@ -95,12 +124,19 @@ app.post('/register',(req, res, next)=>{
 
 app.put('/image',(req, res, next)=>{
     const id = req.body.id;
+    const imageCount = req.body.count;
+    console.log(imageCount + 'box length');
     const found = dataBase.users.find(user=> user.id === id)
     if(found){
+        let updated = found.entries + imageCount;
+        found.entries = updated;
+        console.log(updated + 'updated')
         
-        res.json(found.entries ++)
+        
+        res.json(found.entries)
+        console.log(`put count ${found.entries}`)
     } else {
-        res.status(404).send(error)
+        res.status(404).send('error')
     }
 })
 
