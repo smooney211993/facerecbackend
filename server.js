@@ -2,7 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
-const knex = require('knex')
+const knex = require('knex');
+const { response } = require('express');
 const db = knex({
     client: 'pg',
     connection: {
@@ -23,7 +24,7 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 let id = 124
 
-const dataBase = {
+/*const dataBase = {
     users: [
         {
             id: '123',
@@ -44,6 +45,7 @@ const dataBase = {
         }
     ]
 }
+*/
 
 app.use(bodyParser.json());
 app.use(cors())
@@ -81,42 +83,54 @@ app.post('/signin', (req, res, next)=>{
 });
 
 app.param('userId',(req,res,next, id)=>{
-    const found = dataBase.users.find(user=> user.id === id)
+    /*const found = dataBase.users.find(user=> user.id === id)
     if(found){
         req.user = found;
         next();
     } else {
         res.status(404).send()
     }
+    */
+   db.select('*').from('users').where({id: id}).then(user=>{
+       if(user.length){
+        req.user = user[0];
+        next();
+       } else {
+        res.status(400).send('not found')
+        
+       }
+   }).catch(error=>response.status(400).send('error getting request'))
 })
 
 
 app.get('/profile/:userId',(req,res,next)=>{
     res.send(req.user)
-    console.log(req.user.id)
+    
 })
 
 app.post('/register',(req, res, next)=>{
     const {name, password, email} = req.body;
-    if(dataBase.users.find(user => user.email === email)){
+   /* if(dataBase.users.find(user => user.email === email)){
         res.status(404).send('user already exists');
     }
     bcrypt.genSalt(10, function(err, salt) {
         bcrypt.hash(password, salt, function(err, hash) {
         console.log(hash);
         });
-    });
-    
-    let newUser = {
-        id : ++id,
-        name: name,
+    }); */
+    db('users').returning('*').insert({
         email: email,
-        entries : 0,
+        name: name,
         joined: new Date()
-    }
-    dataBase.users.push(newUser);
-    res.json(newUser);
-    console.log(dataBase.users);
+    }).then(user=>{
+        res.json(user[0])
+    }).catch(error=>{
+        res.status(400).json('unable to register')
+    })
+   
+    
+    
+    
 })
 
 
