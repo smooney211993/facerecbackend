@@ -108,37 +108,45 @@ app.get('/profile/:userId',(req,res,next)=>{
     
 })
 
-app.post('/register',(req, res, next)=>{
+app.post('/register', async (req, res, next)=>{
     const {name, password, email} = req.body;
-   /* if(dataBase.users.find(user => user.email === email)){
-        res.status(404).send('user already exists');
-    }
-    bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(password, salt, function(err, hash) {
-        console.log(hash);
-        });
-    }); */
-    db('users').returning('*').insert({
-        email: email,
-        name: name,
-        joined: new Date()
-    }).then(user=>{
-        res.json(user[0])
-    }).catch(error=>{
-        res.status(400).json('unable to register')
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    if (!email || !name || !password) {
+        return res.status(400).json('incorrect form submission');
+      }
+    db.transaction(async(trx)=>{
+        try{
+            const loginEmail = await trx.insert({
+                hash: hash,
+                email: email
+            }).into('login')
+            .returning('email')
+    
+            const user = await trx('users')
+            .returning('*')
+            .insert({
+                email: loginEmail[0],
+                name: name,
+                joined: new Date()
+            })
+
+            res.json(user[0])
+            await trx.commit
+        }catch(error){
+            await trx.rollback
+
+        }
     })
-   
-    
-    
-    
 })
 
 
 
 
-app.put('/image',(req, res, next)=>{
-    const id = req.body.id;
-    const imageCount = req.body.count;
+app.put('/image',async (req, res, next)=>{
+    const {id, count} = req.body
+    const imageCount = count
+   /* const imageCount = req.body.count;
     console.log(imageCount + 'box length');
     const found = dataBase.users.find(user=> user.id === id)
     if(found){
@@ -152,6 +160,20 @@ app.put('/image',(req, res, next)=>{
     } else {
         res.status(404).send('error')
     }
+    */
+   /*
+    db('users').where('id', '=', id)
+   .increment('entries', count)
+   .returning('entries')
+   .then(entries => {
+     res.json(entries[0]);
+   })
+   */
+  const entries = await  db('users').where('id', '=', id)
+  .increment('entries', count)
+  .returning('entries')
+  res.send(entries);
+   
 })
 
 app.listen(PORT, ()=>{
