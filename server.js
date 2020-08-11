@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const knex = require('knex');
-const { response } = require('express');
 const db = knex({
     client: 'pg',
     connection: {
@@ -44,9 +43,10 @@ app.post('/signin', async (req, res, next)=>{
             const user = await db.select('*')
             .from('users')
             .where('email', '=', email)
-            console.log(user)
             res.send(user[0])
-    }
+          } else {
+              res.status(400).send('wrong credentials')
+          }
 
     }catch(error){
         res.status(400).send('unable to connect')
@@ -56,21 +56,23 @@ app.post('/signin', async (req, res, next)=>{
 
 });
 
-app.param('userId',(req,res,next, id)=>{
-    db.select('*').from('users').where({id: id}).then(user=>{
-       if(user.length){
+app.param('userId', async (req,res,next, id)=>{
+   try {
+  const user = await db.select('*').from('users').where({id: id})
+    if(user.length){
         req.user = user[0];
         next();
        } else {
         res.status(400).send('not found')
-        
-       }
-   }).catch(error=>response.status(400).send('error getting request'))
+         }
+    } catch(error){
+        response.status(400).send('error getting request')
+    }
 })
 
 
 app.get('/profile/:userId',(req,res,next)=>{
-    res.send(req.user)
+    res.send(req.user);
     
 })
 
@@ -97,7 +99,7 @@ app.post('/register', async (req, res, next)=>{
                 joined: new Date()
             })
 
-            res.json(user[0])
+            res.send(user[0])
             await trx.commit
         }catch(error){
             await trx.rollback
