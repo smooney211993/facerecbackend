@@ -14,7 +14,7 @@ const db = knex({
     }
   });
 
-  db.select('*').from('users').then(data=>console.log(data));
+  
 
 
 
@@ -24,28 +24,6 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 let id = 124
 
-/*const dataBase = {
-    users: [
-        {
-            id: '123',
-            name: 'Stephen',
-            password: 'cookies',
-            entries : 0,
-            email: 'stephen@gmail.com',
-            joined: new Date()
-        },
-        {
-            id: '124',
-            name: 'holby',
-            password: 'schnob',
-            email: "holby@gmail.com",
-            entries: 0,
-            joined: new Date()
-
-        }
-    ]
-}
-*/
 
 app.use(bodyParser.json());
 app.use(cors())
@@ -54,44 +32,32 @@ app.use(cors())
 
 
 app.get('/', (req , res, next)=>{
-    res.send('this is working bitch tits');
+    res.send('working');
 })
 
-app.post('/signin', (req, res, next)=>{
-    bcrypt.compare(req.body.password, '$2a$10$dHoVH.wq9LVgZLbcsE.x4.xi2jaeuuhskNkL2QX9c1zzfjUUWZNme', function(err, res) {
-       console.log(res)
-    });
-     
-     /*if(req.body.email === dataBase.users[2].email && 
-        req.body.password === dataBase.users[2].password) {
-        res.json('success')
-    } else {
-        res.status(400).json('error logging in')
-    } */
-
-    const found = dataBase.users.find(user=>{
-       return  user.password === req.body.password && user.email === req.body.email
-    })
-    console.log('found' + found)
-    if(found) {
-        res.json(found)
-        console.log(found)
-    } else {
-        res.status(400).json('error logging in')
+app.post('/signin', async (req, res, next)=>{
+    const {email, password} = req.body;
+    try{
+        const data = await db.select('email', 'hash').from('login')
+        .where('email', '=', email)
+        if(bcrypt.compareSync(password, data[0].hash)){
+            const user = await db.select('*')
+            .from('users')
+            .where('email', '=', email)
+            console.log(user)
+            res.send(user[0])
     }
+
+    }catch(error){
+        res.status(400).send('unable to connect')
+
+    }
+
 
 });
 
 app.param('userId',(req,res,next, id)=>{
-    /*const found = dataBase.users.find(user=> user.id === id)
-    if(found){
-        req.user = found;
-        next();
-    } else {
-        res.status(404).send()
-    }
-    */
-   db.select('*').from('users').where({id: id}).then(user=>{
+    db.select('*').from('users').where({id: id}).then(user=>{
        if(user.length){
         req.user = user[0];
         next();
@@ -135,6 +101,7 @@ app.post('/register', async (req, res, next)=>{
             await trx.commit
         }catch(error){
             await trx.rollback
+            res.status(400).send('unable to register')
 
         }
     })
@@ -146,33 +113,10 @@ app.post('/register', async (req, res, next)=>{
 app.put('/image',async (req, res, next)=>{
     const {id, count} = req.body
     const imageCount = count
-   /* const imageCount = req.body.count;
-    console.log(imageCount + 'box length');
-    const found = dataBase.users.find(user=> user.id === id)
-    if(found){
-        let updated = found.entries + imageCount;
-        found.entries = updated;
-        console.log(updated + 'updated')
-        
-        
-        res.json(found.entries)
-        console.log(`put count ${found.entries}`)
-    } else {
-        res.status(404).send('error')
-    }
-    */
-   /*
-    db('users').where('id', '=', id)
-   .increment('entries', count)
-   .returning('entries')
-   .then(entries => {
-     res.json(entries[0]);
-   })
-   */
-  const entries = await  db('users').where('id', '=', id)
-  .increment('entries', count)
-  .returning('entries')
-  res.send(entries);
+    const entries = await  db('users').where('id', '=', id)
+    .increment('entries', count)
+    .returning('entries')
+    res.send(entries);    
    
 })
 
