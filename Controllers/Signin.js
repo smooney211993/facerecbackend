@@ -20,8 +20,6 @@ const handleSignin = async (req, res, next, db, bcrypt)=>{
 
 };
 
-
-module.exports = {
+module.exports ={
     handleSignin: handleSignin
-};
-
+}

@@ -3,10 +3,9 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const register = require('./Controllers/Register');
 const signin = require('./Controllers/Signin');
-const image = require('./controllers/image');
+const image = require('./Controllers/image');
 const cors = require('cors');
 const knex = require('knex');
-const { handleApiCall } = require('./controllers/ihemage');
 const db = knex({
     client: 'pg',
     connection: {
@@ -28,7 +27,7 @@ app.use(cors())
 app.get('/',(req,res,next)=>{
     res.send('I am working');
 })
-/*
+
 app.post('/signin', (req,res,next)=>{signin.handleSignin(req,res,next,db,bcrypt)});
 app.param('userId', async (req,res,next, id)=>{
    try {
@@ -50,7 +49,7 @@ app.post('/register', (req,res,next) =>{ register.handleRegister(req, res, next,
 app.put('/image', (req,res,next)=>{image.handleImage(req,res,next,db)})
 
 app.post('/imageurl', (req,res,next)=>{handleApiCall(req,res,next)})
-*/
+
 app.listen(PORT,host, ()=>{
   console.log(`you are listening on ${PORT}`);
   
