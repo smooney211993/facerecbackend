@@ -18,6 +18,7 @@ const db = knex({
   });
 const app = express();
 const PORT = process.env.PORT || 4001;
+const host = '0.0.0.0';
 app.use(bodyParser.json());
 app.use(cors())
 app.get('/', (req,res)=>{
@@ -46,7 +47,7 @@ app.get('/profile/:userId',(req,res,next)=>{
 })
 app.post('/register', (req,res,next) =>{ register.handleRegister(req, res, next, db, bcrypt)})
 app.put('/image', (req,res,next)=>{image.handleImage(req,res,next,db)})
-app.listen(PORT, ()=>{
+app.listen(PORT,host, ()=>{
     console.log(`you are listening on ${PORT}`);
 })
 app.post('/imageurl', (req,res,next)=>{handleApiCall(req,res,next)})
