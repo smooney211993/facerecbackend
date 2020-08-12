@@ -1,4 +1,4 @@
-const Clarifai = require('clarifai');
+const Clarifai = require('./node_modules/clarifai');
 const app = new Clarifai.App({
     apiKey: 'e0357803b22f409dbb059d51ca2675b1'
    });
@@ -12,6 +12,7 @@ const handleApiCall = async (req,res,next)=>{
 
         }
 }
+
 
 const handleImage = async (req, res, next, db)=>{
     const {id, count} = req.body
