@@ -48,7 +48,7 @@ app.get('/profile/:userId',(req,res,next)=>{
 app.post('/register', (req,res,next) =>{ register.handleRegister(req, res, next, db, bcrypt)})
 app.put('/image', (req,res,next)=>{image.handleImage(req,res,next,db)})
 
-app.post('/imageurl', (req,res,next)=>{handleApiCall(req,res,next)})
+app.post('/imageurl', (req,res,next)=>{image.handleApiCall(req,res,next)})
 
 app.listen(PORT,host, ()=>{
   console.log(`you are listening on ${PORT}`);
