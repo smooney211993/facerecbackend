@@ -21,11 +21,14 @@ const PORT = process.env.PORT || 4001;
 const host = '0.0.0.0';
 app.use(bodyParser.json());
 app.use(cors())
-app.get('/', (req,res)=>{
-    res.json('i am working');
+
+
+
+
+app.get('/',(req,res,next)=>{
+    res.send('I am working');
 })
 app.post('/signin', (req,res,next)=>{signin.handleSignin(req,res,next,db,bcrypt)});
-
 app.param('userId', async (req,res,next, id)=>{
    try {
   const user = await db.select('*').from('users').where({id: id})
@@ -39,9 +42,6 @@ app.param('userId', async (req,res,next, id)=>{
         response.status(400).send('error getting request')
     }
 }) 
-
-
-
 app.get('/profile/:userId',(req,res,next)=>{
     res.send(req.user);    
 })
