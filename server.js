@@ -6,7 +6,7 @@ const signin = require('./controllers/signin');
 const image = require('./controllers/image');
 const cors = require('cors');
 const knex = require('knex');
-const { handleApiCall } = require('./controllers/image');
+const { handleApiCall } = require('./controllers/ihemage');
 const db = knex({
     client: 'pg',
     connection: {
@@ -28,6 +28,7 @@ app.use(cors())
 app.get('/',(req,res,next)=>{
     res.send('I am working');
 })
+/*
 app.post('/signin', (req,res,next)=>{signin.handleSignin(req,res,next,db,bcrypt)});
 app.param('userId', async (req,res,next, id)=>{
    try {
@@ -47,18 +48,12 @@ app.get('/profile/:userId',(req,res,next)=>{
 })
 app.post('/register', (req,res,next) =>{ register.handleRegister(req, res, next, db, bcrypt)})
 app.put('/image', (req,res,next)=>{image.handleImage(req,res,next,db)})
-app.listen(PORT,host, ()=>{
-   console.log(`you are listening on ${PORT}`);
-   
-})
+
 app.post('/imageurl', (req,res,next)=>{handleApiCall(req,res,next)})
-
-/*
-
-/ res = 
-/signin post succ or fail
-/register post =  user
-/profile/:userId get = user
-/image put user
-
 */
+app.listen(PORT,host, ()=>{
+  console.log(`you are listening on ${PORT}`);
+  
+})
+
+
