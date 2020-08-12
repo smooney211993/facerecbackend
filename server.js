@@ -17,7 +17,7 @@ const db = knex({
     }
   });
 const app = express();
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 4001;
 app.use(bodyParser.json());
 app.use(cors())
 app.get('/', (req , res, next)=>{
