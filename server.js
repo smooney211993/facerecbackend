@@ -20,8 +20,8 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 app.use(bodyParser.json());
 app.use(cors())
-app.get('/', (req , res, next)=>{
-    res.send('working');
+app.get('/', (req,res)=>{
+    res.json('i am working');
 })
 app.post('/signin', (req,res,next)=>{signin.handleSignin(req,res,next,db,bcrypt)});
 
