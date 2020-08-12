@@ -3,10 +3,10 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const register = require('./Controllers/Register');
 const signin = require('./Controllers/Signin');
-const image = require('./Controllers/image');
+const image = require('./Controllers/Image');
 const cors = require('cors');
 const knex = require('knex');
-const { handleApiCall } = require('./Controllers/image');
+const { handleApiCall } = require('./Controllers/Image');
 const db = knex({
     client: 'pg',
     connection: {
@@ -18,8 +18,6 @@ const db = knex({
   });
 const app = express();
 const PORT = process.env.PORT || 4001;
-let id = 124
-
 app.use(bodyParser.json());
 app.use(cors())
 app.get('/', (req , res, next)=>{
@@ -39,7 +37,9 @@ app.param('userId', async (req,res,next, id)=>{
     } catch(error){
         response.status(400).send('error getting request')
     }
-})
+}) 
+
+
 
 app.get('/profile/:userId',(req,res,next)=>{
     res.send(req.user);    
