@@ -1,5 +1,5 @@
 const handleRegister =  async (req, res, next, db, bcrypt)=>{
-    const {password, email} = req.body;
+    const {password, email,name} = req.body;
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
     if (!email || !name || !password) {
